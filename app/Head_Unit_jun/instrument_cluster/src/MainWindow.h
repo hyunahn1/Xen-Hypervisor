@@ -1,0 +1,110 @@
+/**
+ * @file MainWindow.h
+ * @brief Main Dashboard Window
+ * @author Ahn Hyunjun
+ * @date 2026-02-16
+ */
+
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+#include <QLabel>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QTimer>
+#include <QProcess>
+#include <QString>
+
+// Forward declarations
+class SpeedometerWidget;
+class RpmGauge;
+class BatteryWidget;
+class SerialReader;
+class DataProcessor;
+#ifdef IC_HAS_VSOMEIP
+class VSomeIPGearReceiver;
+#endif
+class QGraphicsOpacityEffect;
+class QParallelAnimationGroup;
+
+/**
+ * @class MainWindow
+ * @brief Main window containing the entire dashboard
+ *
+ * Layout: 1280×400 pixels
+ * - Left Panel (300px): RPM gauge + auxiliary battery
+ * - Center Panel (600px): Main speedometer
+ * - Right Panel (300px): Direction, battery, time
+ */
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+private slots:
+    void onSpeedDataReceived(float pulsePerSec);
+    void onPythonDataReceived();
+    void onResetButtonClicked();
+    void updateElapsedTime();
+#ifdef IC_HAS_VSOMEIP
+    void onVSomeIPGearReceived(const QString &gear);
+#endif
+    
+private:
+    void setupUI();
+    void setupConnections();
+    void setupPythonBridge();
+    void applyStyles();
+    void applyDynamicBackgroundTheme(const QString &mode);
+    void animateCenterMode(const QString &newMode);
+    bool updateDirectionFromSnapshot();
+    void updateDirectionIndicators();
+    void setGearFromIPC(const QString &gear);
+    void applyDirectionIndicatorStyle(QLabel *label, bool active, const QString &activeColor);
+    
+    // Widgets
+    SpeedometerWidget *m_speedometer;
+    RpmGauge *m_rpmGauge;
+    BatteryWidget *m_batteryWidget;
+    
+    // Info labels
+    QLabel *m_forwardLabel;
+    QLabel *m_parkingLabel;
+    QLabel *m_backwardLabel;
+    QLabel *m_timeLabel;
+    QLabel *m_maxSpeedLabel;
+    QPushButton *m_resetButton;
+    
+    // Communication
+    SerialReader *m_serialReader;
+    QProcess *m_pythonProcess;
+#ifdef IC_HAS_VSOMEIP
+    VSomeIPGearReceiver *m_vsomeipGear;
+#endif
+    DataProcessor *m_dataProcessor;
+    QString m_pythonStdoutBuffer;
+    
+    // Statistics
+    float m_maxSpeed;
+    float m_currentSpeed;
+    QString m_driveDirection;
+    QString m_lastCenterMode;
+    QGraphicsOpacityEffect *m_centerModeOpacity;
+    QParallelAnimationGroup *m_centerModeAnim;
+    QTimer *m_elapsedTimer;
+    qint64 m_startTime;
+    
+    // Constants
+    static constexpr int WINDOW_WIDTH = 1280;
+    static constexpr int WINDOW_HEIGHT = 400;
+    static constexpr int LEFT_PANEL_WIDTH = 260;
+    static constexpr int CENTER_PANEL_WIDTH = 560;
+    static constexpr int RIGHT_PANEL_WIDTH = 240;
+};
+
+#endif // MAINWINDOW_H

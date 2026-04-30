@@ -1,0 +1,17 @@
+{
+    "unicast": "127.0.0.1",
+    "logging": {
+        "level": "debug",
+        "console": "true"
+    },
+    "applications": [
+        {
+            "name": "HeadUnit",
+            "id": "0x1002"
+        }
+    ],
+    "routing": "InstrumentCluster",
+    "service-discovery": {
+        "enable": "false"
+    }
+}

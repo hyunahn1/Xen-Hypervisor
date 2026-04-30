@@ -1,0 +1,8 @@
+build-rpi/
+build-pir/
+poky/
+meta-openembedded/
+meta-raspberrypi/
+meta-qt5/
+meta-piracer/
+Head_Unit_jun/

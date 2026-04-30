@@ -1,0 +1,15 @@
+{
+  "device": "/dev/dri/card1",
+  "separateScreens": true,
+  "outputs": [
+    {
+      "name": "HDMI-A-1",
+      "primary": true,
+      "mode": "current"
+    },
+    {
+      "name": "DSI-1",
+      "mode": "current"
+    }
+  ]
+}

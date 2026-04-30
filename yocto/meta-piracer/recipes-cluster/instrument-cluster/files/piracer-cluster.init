@@ -1,0 +1,46 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          piracer-cluster
+# Required-Start:    $network dbus
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: PiRacer Instrument Cluster (vSomeIP routing manager)
+### END INIT INFO
+
+# Run as a Wayland client connecting to hu_shell's compositor (wayland-hu).
+# hu_shell is the eglfs DRM master; it owns both HDMI-A-1 and DSI-1.
+# PiRacerDashboard renders on DSI-1 via hu_shell's ClusterOutputWindow.
+export QT_QPA_PLATFORM=wayland
+export WAYLAND_DISPLAY=wayland-hu
+export XDG_RUNTIME_DIR=/run/user/0
+export VSOMEIP_CONFIGURATION=/usr/bin/config/vsomeip_cluster.json
+
+case "$1" in
+    start)
+        # Wait for hu_shell Wayland compositor socket (max 15 s)
+        i=0
+        while [ $i -lt 15 ]; do
+            [ -S "${XDG_RUNTIME_DIR}/wayland-hu" ] && break
+            sleep 1
+            i=$((i + 1))
+        done
+        /usr/bin/PiRacerDashboard &
+        echo "PiRacerDashboard started"
+        ;;
+    stop)
+        killall PiRacerDashboard 2>/dev/null
+        echo "PiRacerDashboard stopped"
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0

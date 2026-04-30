@@ -1,0 +1,63 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          hu-shell
+# Required-Start:    $network dbus
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: PiRacer Head Unit Shell
+### END INIT INFO
+
+export QT_QPA_PLATFORM=eglfs
+export QT_QPA_EGLFS_KMS_CONFIG=/usr/bin/config/kms_headunit.json
+export XDG_RUNTIME_DIR=/run/user/0
+export QT_FONT_DPI=96
+export VSOMEIP_CONFIGURATION=/usr/bin/config/vsomeip_headunit.json
+export QT_QPA_EGLFS_ALWAYS_SET_MODE=1
+export HU_REAR_CAMERA_DEVICE=/dev/video0
+
+SUPERVISOR_PID=/run/hu-shell-supervisor.pid
+LOG_FILE=/var/log/hu_shell.log
+
+case "$1" in
+    start)
+        mkdir -p /run/user/0
+        chmod 700 /run/user/0
+        # Setup CAN interface
+        ip link set can0 type can bitrate 500000 2>/dev/null && ip link set can0 up 2>/dev/null && echo "can0 up" || echo "can0 not available"
+        if [ -f "$SUPERVISOR_PID" ] && kill -0 "$(cat "$SUPERVISOR_PID")" 2>/dev/null; then
+            echo "hu_shell already supervised"
+            exit 0
+        fi
+        (
+            while true; do
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] starting hu_shell" >> "$LOG_FILE"
+                /usr/bin/hu_shell >> "$LOG_FILE" 2>&1
+                status=$?
+                echo "[$(date '+%Y-%m-%d %H:%M:%S')] hu_shell exited with status ${status}; restarting in 3s" >> "$LOG_FILE"
+                sleep 3
+            done
+        ) &
+        echo $! > "$SUPERVISOR_PID"
+        echo "hu_shell started"
+        ;;
+    stop)
+        if [ -f "$SUPERVISOR_PID" ]; then
+            kill "$(cat "$SUPERVISOR_PID")" 2>/dev/null
+            rm -f "$SUPERVISOR_PID"
+        fi
+        killall hu_shell 2>/dev/null
+        echo "hu_shell stopped"
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0

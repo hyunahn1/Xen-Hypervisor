@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- Add icons, fonts etc. -->
+        <!-- <file>icons/play.svg</file> -->
+    </qresource>
+</RCC>

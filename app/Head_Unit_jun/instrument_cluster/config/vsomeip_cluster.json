@@ -1,0 +1,10 @@
+{
+    "unicast": "127.0.0.1",
+    "logging": {"level": "info", "console": "true"},
+    "applications": [{"name": "InstrumentCluster", "id": "0x1001"}],
+    "services": [{"service": "0x1234", "instance": "0x0001"}],
+    "routing": "InstrumentCluster",
+    "service-discovery": {
+        "enable": "false"
+    }
+}

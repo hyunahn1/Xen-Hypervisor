@@ -1,0 +1,13 @@
+[Unit]
+Description=PiRacer Instrument Cluster
+After=network.target
+
+[Service]
+Type=simple
+Environment=QT_QPA_PLATFORM=eglfs
+ExecStart=/usr/bin/PiRacerDashboard
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
