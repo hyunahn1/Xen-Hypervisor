@@ -73,6 +73,11 @@ venv/
 # ============================================================
 # Yocto / BitBake
 # ============================================================
+yocto/poky/
+yocto/meta-openembedded/
+yocto/meta-raspberrypi/
+yocto/meta-qt5/
+yocto/meta-virtualization/
 yocto/build-*/
 yocto/build_*/
 tmp/
